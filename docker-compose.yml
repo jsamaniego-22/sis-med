@@ -1,0 +1,11 @@
+ # Especifica la versión de docker-compose
+services:
+  web:
+    build: .  # Construye la imagen usando el Dockerfile en la raíz
+    ports:
+      - "3000:3000"  # Mapea el puerto 3000 del contenedor al puerto 3000 del host
+    volumes:
+      - .:/app  # Sincroniza la carpeta actual del host con /app en el contenedor
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Habilita la recarga en caliente
+    command: npm start  # Comando para iniciar la aplicación
