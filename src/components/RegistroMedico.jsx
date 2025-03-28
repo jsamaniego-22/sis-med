@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import ForgotPasswordModal from './ForgotPasswordModal'; // Importa el modal de olvidé contraseña
+import { Modal, Button, Form, Row, Col, Card, ListGroup } from 'react-bootstrap';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 const RegistroMedico = () => {
   // Estados para los campos del formulario
@@ -12,24 +12,40 @@ const RegistroMedico = () => {
   const [paisNacimiento, setPaisNacimiento] = useState('');
   const [estadoCivil, setEstadoCivil] = useState('');
   const [sexo, setSexo] = useState('');
-  const [padecimientos, setPadecimientos] = useState('');
   const [anoFinalizacion, setAnoFinalizacion] = useState('');
   const [tituloPrincipal, setTituloPrincipal] = useState('');
-  const [especialidad1, setEspecialidad1] = useState('');
-  const [especialidad2, setEspecialidad2] = useState('');
-  const [fotoMedico, setFotoMedico] = useState(null);
+  const [especialidad, setEspecialidad] = useState('');
   const [especialidadAtencion, setEspecialidadAtencion] = useState('');
-  const [diasSemana, setDiasSemana] = useState([]);
-  const [horariosAtencion, setHorariosAtencion] = useState('');
+  const [fotoMedico, setFotoMedico] = useState(null);
+  const [correo, setCorreo] = useState('');
   const [numeroEmergencia, setNumeroEmergencia] = useState('');
+  
+  // Estados para horarios
+  const [diasSeleccionados, setDiasSeleccionados] = useState({
+    lunes: { mañana: false, tarde: false },
+    martes: { mañana: false, tarde: false },
+    miércoles: { mañana: false, tarde: false },
+    jueves: { mañana: false, tarde: false },
+    viernes: { mañana: false, tarde: false },
+    sábado: { mañana: false, tarde: false }
+  });
 
-  // Estado para el modal de olvidé contraseña
+  // Estado para el modal
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
-  // Función para manejar el envío del formulario
+  // Manejar cambio en horarios
+  const handleHorarioChange = (dia, turno) => {
+    setDiasSeleccionados(prev => ({
+      ...prev,
+      [dia]: {
+        ...prev[dia],
+        [turno]: !prev[dia][turno]
+      }
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Lógica para enviar los datos del formulario
     console.log({
       nombre,
       apellido,
@@ -39,254 +55,315 @@ const RegistroMedico = () => {
       paisNacimiento,
       estadoCivil,
       sexo,
-      padecimientos,
       anoFinalizacion,
       tituloPrincipal,
-      especialidad1,
-      especialidad2,
-      fotoMedico,
+      especialidad,
       especialidadAtencion,
-      diasSemana,
-      horariosAtencion,
-      numeroEmergencia,
+      fotoMedico,
+      diasSeleccionados,
+      correo,
+      numeroEmergencia
     });
   };
 
+  // Opciones para especialidades
+  const especialidades = [
+    "Cardiología",
+    "Dermatología",
+    "Endocrinología",
+    "Gastroenterología",
+    "Neurología",
+    "Oncología",
+    "Pediatría",
+    "Psiquiatría"
+  ];
+
   return (
     <div className="container mt-4">
-      <h2>Registro de Médico</h2>
+      <h2 className="mb-4 text-center">Registro de Médico</h2>
+      
       <Form onSubmit={handleSubmit}>
-        {/* Sección de Información Personal */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formNombre">
-              <Form.Label>Nombre</Form.Label>
-              <Form.Control
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formApellido">
-              <Form.Label>Apellido</Form.Label>
-              <Form.Control
-                type="text"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        {/* Sección 1: Datos Generales */}
+        <Card className="mb-4 shadow-sm">
+          <Card.Header className="bg-primary text-white">
+            <h5>Datos Generales</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="formNombre">
+                  <Form.Label>Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formApellido">
+                  <Form.Label>Apellido</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={apellido}
+                    onChange={(e) => setApellido(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formCedula">
+                  <Form.Label>Cédula Profesional</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={cedula}
+                    onChange={(e) => setCedula(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-        {/* Sección de Cédula y Fecha de Nacimiento */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formCedula">
-              <Form.Label>Cédula</Form.Label>
-              <Form.Control
-                type="text"
-                value={cedula}
-                onChange={(e) => setCedula(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formFechaNacimiento">
-              <Form.Label>Fecha de Nacimiento</Form.Label>
-              <Form.Control
-                type="date"
-                value={fechaNacimiento}
-                onChange={(e) => setFechaNacimiento(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="formFechaNacimiento">
+                  <Form.Label>Fecha de Nacimiento</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={fechaNacimiento}
+                    onChange={(e) => setFechaNacimiento(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formNacionalidad">
+                  <Form.Label>Nacionalidad</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={nacionalidad}
+                    onChange={(e) => setNacionalidad(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formPaisNacimiento">
+                  <Form.Label>País de Nacimiento</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={paisNacimiento}
+                    onChange={(e) => setPaisNacimiento(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
-        {/* Sección de Nacionalidad y País de Nacimiento */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formNacionalidad">
-              <Form.Label>Nacionalidad</Form.Label>
-              <Form.Control
-                type="text"
-                value={nacionalidad}
-                onChange={(e) => setNacionalidad(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formPaisNacimiento">
-              <Form.Label>País de Nacimiento</Form.Label>
-              <Form.Control
-                type="text"
-                value={paisNacimiento}
-                onChange={(e) => setPaisNacimiento(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group controlId="formEstadoCivil">
+                  <Form.Label>Estado Civil</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={estadoCivil}
+                    onChange={(e) => setEstadoCivil(e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccione...</option>
+                    <option value="Soltero">Soltero</option>
+                    <option value="Casado">Casado</option>
+                    <option value="Divorciado">Divorciado</option>
+                    <option value="Viudo">Viudo</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formSexo">
+                  <Form.Label>Sexo</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={sexo}
+                    onChange={(e) => setSexo(e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccione...</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Otro">Otro</option>
+                    <option value="Prefiero no decir">Prefiero no decir</option>
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
-        {/* Sección de Estado Civil y Sexo */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formEstadoCivil">
-              <Form.Label>Estado Civil</Form.Label>
-              <Form.Control
-                as="select"
-                value={estadoCivil}
-                onChange={(e) => setEstadoCivil(e.target.value)}
-                required
-              >
-                <option value="">Seleccione...</option>
-                <option value="Soltero">Soltero</option>
-                <option value="Casado">Casado</option>
-                <option value="Divorciado">Divorciado</option>
-                <option value="Viudo">Viudo</option>
-              </Form.Control>
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formSexo">
-              <Form.Label>Sexo</Form.Label>
-              <Form.Control
-                as="select"
-                value={sexo}
-                onChange={(e) => setSexo(e.target.value)}
-                required
-              >
-                <option value="">Seleccione...</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
-                <option value="Otro">Otro</option>
-              </Form.Control>
-            </Form.Group>
-          </Col>
-        </Row>
+        {/* Sección 2: Información Profesional */}
+        <Card className="mb-4 shadow-sm">
+          <Card.Header className="bg-info text-white">
+            <h5>Información Profesional</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group controlId="formAnoFinalizacion">
+                  <Form.Label>Año de Finalización</Form.Label>
+                  <Form.Control
+                    type="number"
+                    min="1900"
+                    max={new Date().getFullYear()}
+                    value={anoFinalizacion}
+                    onChange={(e) => setAnoFinalizacion(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formTituloPrincipal">
+                  <Form.Label>Título Principal</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={tituloPrincipal}
+                    onChange={(e) => setTituloPrincipal(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group controlId="formEspecialidad">
+                  <Form.Label>Especialidad</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={especialidad}
+                    onChange={(e) => setEspecialidad(e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccione...</option>
+                    {especialidades.map((esp) => (
+                      <option key={esp} value={esp}>{esp}</option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+            </Row>
 
-        {/* Sección de Padecimientos y Año de Finalización */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formPadecimientos">
-              <Form.Label>Padecimientos</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={padecimientos}
-                onChange={(e) => setPadecimientos(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formAnoFinalizacion">
-              <Form.Label>Año de Finalización de Estudios</Form.Label>
-              <Form.Control
-                type="number"
-                value={anoFinalizacion}
-                onChange={(e) => setAnoFinalizacion(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formEspecialidadAtencion">
+                  <Form.Label>Especialidad de Atención</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={especialidadAtencion}
+                    onChange={(e) => setEspecialidadAtencion(e.target.value)}
+                    required
+                  >
+                    <option value="">Seleccione...</option>
+                    {especialidades.map((esp) => (
+                      <option key={esp} value={esp}>{esp}</option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formFotoMedico">
+                  <Form.Label>Foto del Médico</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFotoMedico(e.target.files[0])}
+                  />
+                  <Form.Text muted>
+                    Suba una foto profesional para su perfil
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
 
-        {/* Sección de Títulos y Especialidades */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formTituloPrincipal">
-              <Form.Label>Título Principal</Form.Label>
-              <Form.Control
-                type="text"
-                value={tituloPrincipal}
-                onChange={(e) => setTituloPrincipal(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formEspecialidad1">
-              <Form.Label>Especialidad 1</Form.Label>
-              <Form.Control
-                type="text"
-                value={especialidad1}
-                onChange={(e) => setEspecialidad1(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+            <Row className="mb-3">
+              <Col md={12}>
+                <Form.Label>Horarios de Atención</Form.Label>
+                <Card className="p-3">
+                  <div className="d-flex flex-wrap">
+                    {Object.entries(diasSeleccionados).map(([dia, turnos]) => (
+                      <div key={dia} className="me-4 mb-3">
+                        <h6 className="text-capitalize">{dia}</h6>
+                        <div className="d-flex">
+                          <Form.Check
+                            type="checkbox"
+                            id={`${dia}-mañana`}
+                            label="Mañana"
+                            checked={turnos.mañana}
+                            onChange={() => handleHorarioChange(dia, 'mañana')}
+                            className="me-2"
+                          />
+                          <Form.Check
+                            type="checkbox"
+                            id={`${dia}-tarde`}
+                            label="Tarde"
+                            checked={turnos.tarde}
+                            onChange={() => handleHorarioChange(dia, 'tarde')}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
-        {/* Sección de Foto y Especialidad de Atención */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formFotoMedico">
-              <Form.Label>Foto del Médico</Form.Label>
-              <Form.Control
-                type="file"
-                onChange={(e) => setFotoMedico(e.target.files[0])}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formEspecialidadAtencion">
-              <Form.Label>Especialidad de Atención</Form.Label>
-              <Form.Control
-                type="text"
-                value={especialidadAtencion}
-                onChange={(e) => setEspecialidadAtencion(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {/* Sección de Horarios y Número de Emergencia */}
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Group controlId="formHorariosAtencion">
-              <Form.Label>Horarios de Atención</Form.Label>
-              <Form.Control
-                type="text"
-                value={horariosAtencion}
-                onChange={(e) => setHorariosAtencion(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="formNumeroEmergencia">
-              <Form.Label>Número de Emergencia</Form.Label>
-              <Form.Control
-                type="text"
-                value={numeroEmergencia}
-                onChange={(e) => setNumeroEmergencia(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-
-        {/* Sección de Usuario y Actualizar Contraseña */}
-        <Row className="mb-3">
-          <Col md={12}>
-            <h4>Usuario</h4>
-            <Button variant="link" onClick={() => setShowForgotPasswordModal(true)}>
-              Actualizar Contraseña
-            </Button>
-          </Col>
-        </Row>
+        {/* Sección 3: Información de Contacto */}
+        <Card className="mb-4 shadow-sm">
+          <Card.Header className="bg-warning text-dark">
+            <h5>Información de Contacto</h5>
+          </Card.Header>
+          <Card.Body>
+            <Row>
+              <Col md={6}>
+                <Form.Group controlId="formCorreo">
+                  <Form.Label>Correo Electrónico</Form.Label>
+                  <Form.Control
+                    type="email"
+                    value={correo}
+                    onChange={(e) => setCorreo(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formNumeroEmergencia">
+                  <Form.Label>Teléfono de Emergencias</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    value={numeroEmergencia}
+                    onChange={(e) => setNumeroEmergencia(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Col md={12} className="d-flex justify-content-end">
+                <Button 
+                  variant="outline-primary" 
+                  onClick={() => setShowForgotPasswordModal(true)}
+                >
+                  Actualizar Contraseña
+                </Button>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
 
         {/* Botón de Enviar */}
-        <Button variant="primary" type="submit">
-          Registrar
-        </Button>
+        <div className="d-grid gap-2">
+          <Button variant="primary" type="submit" size="lg">
+            Registrar Médico
+          </Button>
+        </div>
       </Form>
 
       {/* Modal de Olvidé Contraseña */}
