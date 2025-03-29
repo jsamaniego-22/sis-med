@@ -1,70 +1,148 @@
-# Getting Started with Create React App
+# 📝 Documentación del Sistema Médico - SIS-MEDIC
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 📌 Descripción del Proyecto
 
-## Available Scripts
+Sistema integral de gestión médica que permite:
+- Registro de pacientes y médicos
+- Programación de citas
+- Gestión de historiales médicos
+- Autenticación de usuarios
 
-In the project directory, you can run:
+## 🛠 Tecnologías Utilizadas
 
-### `npm start`
+### Backend
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| Node.js | 18.x | Entorno de ejecución |
+| Express | 4.x | Framework web |
+| Sequelize | 6.x | ORM para PostgreSQL |
+| PostgreSQL | 13.x | Base de datos |
+| Docker | 20.x | Contenedorización |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| React | 18.x | Biblioteca UI |
+| React Bootstrap | 2.x | Componentes UI |
+| Axios | 1.x | Cliente HTTP |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Instalación y Configuración
 
-### `npm test`
+### Requisitos previos
+- Docker y Docker Compose instalados
+- Node.js 18.x o superior
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Pasos para iniciar el proyecto
 
-### `npm run build`
+1. **Clonar el repositorio**
+```bash
+git clone https://github.com/tu-usuario/sis-medic.git
+cd sis-medic
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. **Configurar variables de entorno**
+Crear archivo `.env` en la raíz del proyecto:
+```ini
+# PostgreSQL
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin123
+POSTGRES_DB=clinica_db
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Backend
+DB_HOST=db
+DB_PORT=5432
+JWT_SECRET=mi_secreto_jwt
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. **Iniciar los contenedores**
+```bash
+docker-compose up --build
+```
 
-### `npm run eject`
+## 🏗 Estructura del Proyecto
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+sis-medic/
+├── backend/
+│   ├── src/
+│   │   ├── config/       # Configuración de DB
+│   │   ├── controllers/  # Lógica de endpoints
+│   │   ├── models/       # Modelos de Sequelize
+│   │   ├── routes/       # Definición de rutas
+│   │   ├── middlewares/  # Middlewares de autenticación
+│   │   └── app.js        # Punto de entrada
+│   └── package.json
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/   # Componentes React
+│   │   ├── pages/        # Vistas principales
+│   │   └── App.js        # Componente raíz
+│   └── package.json
+└── docker-compose.yml    # Configuración de servicios
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🔍 Endpoints Principales (Backend)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Autenticación
+- `POST /api/auth/register` - Registro de usuarios
+- `POST /api/auth/login` - Inicio de sesión
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Médicos
+- `GET /api/medicos` - Listar todos los médicos
+- `POST /api/medicos` - Crear nuevo médico
 
-## Learn More
+### Pacientes
+- `GET /api/pacientes` - Listar pacientes
+- `POST /api/pacientes` - Registrar nuevo paciente
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Citas
+- `GET /api/citas` - Obtener citas programadas
+- `POST /api/citas` - Agendar nueva cita
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🐳 Configuración Docker
 
-### Code Splitting
+El sistema utiliza tres servicios principales:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. **PostgreSQL**: Contenedor de base de datos
+   - Puerto: 5432
+   - Volumen persistente para datos
 
-### Analyzing the Bundle Size
+2. **Backend**: Servidor Node.js
+   - Puerto: 5000
+   - Depende de PostgreSQL
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+3. **Frontend**: Aplicación React
+   - Puerto: 3000
+   - Depende del backend
 
-### Making a Progressive Web App
+## 🔄 Flujo de Trabajo
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+1. **Desarrollo**:
+```bash
+# Iniciar solo la base de datos
+docker-compose up db
 
-### Advanced Configuration
+# Desarrollar frontend localmente
+cd frontend && npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+2. **Producción**:
+```bash
+# Construir e iniciar todos los servicios
+docker-compose up --build -d
+```
 
-### Deployment
+## 📄 Licencia
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Este proyecto está bajo licencia MIT. Ver archivo [LICENSE](LICENSE) para más detalles.
 
-### `npm run build` fails to minify
+## ✉️ Contacto
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Para soporte o contribuciones:
+- Email: contacto@sis-medic.com
+- Issues: [GitHub Issues](https://github.com/tu-usuario/sis-medic/issues)
+
+---
+
+*Documentación actualizada: ${new Date().toLocaleDateString()}*

@@ -1,37 +1,48 @@
-version: '3.8'
-
 services:
-  backend:
-    build: ./backend
-    ports:
-      - "5000:5000"  # Mapea puerto 5000 del host al 5000 del contenedor
-    environment:
-      - DB_HOST=db    # Si usas PostgreSQL en otro servicio
-      - NODE_ENV=development
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"   # Mapea puerto 3000 del host al 3000 del contenedor
-    depends_on:
-      - backend       # Espera a que el backend esté listo
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-
-  # Opcional: Base de datos PostgreSQL
   db:
     image: postgres:13
+    env_file: .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      - DB_HOST
+      - DB_USER
+      - DB_PASSWORD
+      - DB_NAME
+      - DATABASE_URL
+      - JWT_SECRET
+      - NODE_ENV
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    env_file: .env
+    environment:
+      - REACT_APP_API_URL
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
