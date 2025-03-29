@@ -1,11 +1,37 @@
- # Especifica la versión de docker-compose
+version: '3.8'
+
 services:
-  web:
-    build: .  # Construye la imagen usando el Dockerfile en la raíz
+  backend:
+    build: ./backend
     ports:
-      - "3000:3000"  # Mapea el puerto 3000 del contenedor al puerto 3000 del host
-    volumes:
-      - .:/app  # Sincroniza la carpeta actual del host con /app en el contenedor
+      - "5000:5000"  # Mapea puerto 5000 del host al 5000 del contenedor
     environment:
-      - CHOKIDAR_USEPOLLING=true  # Habilita la recarga en caliente
-    command: npm start  # Comando para iniciar la aplicación
+      - DB_HOST=db    # Si usas PostgreSQL en otro servicio
+      - NODE_ENV=development
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"   # Mapea puerto 3000 del host al 3000 del contenedor
+    depends_on:
+      - backend       # Espera a que el backend esté listo
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # Opcional: Base de datos PostgreSQL
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
