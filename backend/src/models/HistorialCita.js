@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
-  const HistorialCita = sequelize.define('HistorialCita', {
+const HistorialCita = (sequelize) => {
+  const HistorialCitaModel = sequelize.define('HistorialCita', {
     diagnostico: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -19,12 +19,14 @@ module.exports = (sequelize) => {
   });
 
   // Relación 1:1 con Cita
-  HistorialCita.associate = (models) => {
-    HistorialCita.belongsTo(models.Cita, {
+  HistorialCitaModel.associate = (models) => {
+    HistorialCitaModel.belongsTo(models.Cita, {
       foreignKey: 'cita_id',
       as: 'cita',
     });
   };
 
-  return HistorialCita;
+  return HistorialCitaModel;
 };
+
+export default HistorialCita;

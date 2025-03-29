@@ -1,20 +1,16 @@
-# Usa una imagen base de Node.js
 FROM node:18-alpine
 
-# Directorio de trabajo
 WORKDIR /app
 
-# Copia archivos de dependencias
-COPY package*.json ./
-
-# Instala dependencias
+# Copiar dependencias primero (para cache)
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copia el resto del código
-COPY . .
+# Copiar el resto
+COPY src ./src   
+COPY db ./db
 
-# Puerto expuesto (debe coincidir con tu app.js)
-EXPOSE 5000
+# Usa ES Modules directamente (sin --experimental-modules)
+CMD ["node", "src/app.js"]
 
-# Comando para iniciar el servidor
-CMD ["npm", "run", "dev"]
+#CMD ["sh", "-c", "npm start & sleep 5 && psql -U $POSTGRES_USER -d $POSTGRES_DB -h $POSTGRES_HOST -f /app/db/init.sql"]

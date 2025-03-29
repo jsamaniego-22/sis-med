@@ -1,4 +1,4 @@
-import User from '../models/UserModel.js';
+import User from '../models/Usuario.js';
 import jwt from 'jsonwebtoken';
 
 // Registro de usuario (paciente o médico)

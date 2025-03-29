@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
+export default (sequelize) => {
   const Usuario = sequelize.define('Usuario', {
     email: {
       type: DataTypes.STRING(100),
@@ -28,8 +28,14 @@ module.exports = (sequelize) => {
       allowNull: true,
     },
   }, {
-    timestamps: true,  // Crea created_at y updated_at automáticamente
+    timestamps: true,
   });
+
+  // Métodos de instancia
+  Usuario.prototype.generateResetToken = function() {
+    this.resetPasswordToken = crypto.randomBytes(20).toString('hex');
+    this.resetPasswordExpires = Date.now() + 3600000; // 1 hora de expiración
+  };
 
   // Relaciones
   Usuario.associate = (models) => {

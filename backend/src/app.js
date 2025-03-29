@@ -1,13 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import { sequelize } from './src/models/index.js';
-import authRoutes from './src/routes/authRoutes.js';
-import medicoRoutes from './src/routes/medicoRoutes.js';
-import pacienteRoutes from './src/routes/pacienteRoutes.js';
-import citasRoutes from './src/routes/citasRoutes.js';
+import models from './models/index.js';
+import authRoutes from './routes/authRoutes.js';
+import medicoRoutes from './routes/medicoRoutes.js';
+import pacienteRoutes from './routes/pacienteRoutes.js';
+import citasRoutes from './routes/citasRoutes.js';
 import 'dotenv/config';
 
 const app = express();
+const { sequelize } = models;
 
 // Middlewares
 app.use(cors());

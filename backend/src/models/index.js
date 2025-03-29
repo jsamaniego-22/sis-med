@@ -1,25 +1,29 @@
-const sequelize = require('../db.js');
-const fs = require('fs');
-const path = require('path');
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import fs from 'fs';
+import sequelize from '../db.js'; // Asegúrate de que db.js también use ESM
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const models = {};
 
-// Carga automática de modelos
-fs.readdirSync(__dirname)
-  .filter((file) => file !== 'index.js' && file.endsWith('.js'))
-  .forEach((file) => {
-    const model = require(path.join(__dirname, file))(sequelize);
-    models[model.name] = model;
-  });
+// Carga dinámica de modelos
+const modelFiles = fs.readdirSync(__dirname)
+  .filter(file => file !== 'index.js' && file.endsWith('.js'));
+
+for (const file of modelFiles) {
+  const module = await import(`./${file}`);
+  const model = module.default(sequelize); // Asume que cada modelo exporta por defecto
+  models[model.name] = model;
+}
 
 // Establece relaciones
-Object.keys(models).forEach((modelName) => {
+Object.keys(models).forEach(modelName => {
   if (models[modelName].associate) {
     models[modelName].associate(models);
   }
 });
 
-module.exports = {
-  ...models,
-  sequelize,
-};
+export const exportedModels = { sequelize, ...models }; // Exportación nombrada
+export default exportedModels;

@@ -1,4 +1,4 @@
-import Medico from '../models/MedicoModel.js';
+import Medico from '../models/Medico.js';
 
 // Crear médico (relacionado con UserModel)
 export const createMedico = async (req, res) => {

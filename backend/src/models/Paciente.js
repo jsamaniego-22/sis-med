@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
-  const Paciente = sequelize.define('Paciente', {
+const Paciente = (sequelize) => {
+  const PacienteModel = sequelize.define('Paciente', {
     nombre: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -28,16 +28,18 @@ module.exports = (sequelize) => {
   });
 
   // Relaciones
-  Paciente.associate = (models) => {
-    Paciente.belongsTo(models.Usuario, {
+  PacienteModel.associate = (models) => {
+    PacienteModel.belongsTo(models.Usuario, {
       foreignKey: 'usuario_id',
       as: 'usuario',
     });
-    Paciente.hasMany(models.Cita, {
+    PacienteModel.hasMany(models.Cita, {
       foreignKey: 'paciente_id',
       as: 'citas',
     });
   };
 
-  return Paciente;
+  return PacienteModel;
 };
+
+export default Paciente;

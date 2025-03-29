@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
+const CitaModel = (sequelize) => {
   const Cita = sequelize.define('Cita', {
     fecha: {
       type: DataTypes.DATEONLY,
@@ -40,3 +40,5 @@ module.exports = (sequelize) => {
 
   return Cita;
 };
+
+export default CitaModel;  // Exportación por defecto
