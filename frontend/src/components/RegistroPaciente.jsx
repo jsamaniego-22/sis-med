@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import axios from 'axios'; // Asegúrate de tener axios instalado
 
 const RegistroPaciente = () => {
   // Estados para los campos del formulario
@@ -21,10 +22,15 @@ const RegistroPaciente = () => {
   const [correo, setCorreo] = useState('');
   const [edad, setEdad] = useState(0);
   const [celular, setCelular] = useState('');
-  const [numeroEmergencia,setNumeroEmergencia] = useState('');
+  const [numeroEmergencia, setNumeroEmergencia] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Estado para el modal
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   // Calcular edad automáticamente
   useEffect(() => {
@@ -41,36 +47,92 @@ const RegistroPaciente = () => {
     }
   }, [fechaNacimiento]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({
-      nombre,
-      apellido,
-      cedula,
-      fechaNacimiento,
-      nacionalidad,
-      paisNacimiento,
-      edad,
-      peso,
-      altura,
-      fechaUltimaVisita,
-      diagnostico,
-      medicoCabecera,
-      tienePadecimiento,
-      especialista,
-      reseñaPadecimiento,
-      correo,
-      celular,
-      numeroEmergencia
-    });
+    setLoading(true);
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Primero crear el usuario
+      const usuarioResponse = await axios.post('http://localhost:5000/api/usuarios', {
+        email: correo,
+        password: password,
+        role: 'paciente'
+      });
+
+      // Luego crear el paciente con el ID del usuario
+      const pacienteData = {
+        nombre: `${nombre} ${apellido}`,
+        cedula,
+        fecha_nacimiento: fechaNacimiento,
+        nacionalidad,
+        pais_nacimiento: paisNacimiento,
+        edad,
+        peso,
+        altura,
+        fecha_ultima_visita: fechaUltimaVisita,
+        diagnostico,
+        medico_cabecera: medicoCabecera,
+        tiene_padecimiento: tienePadecimiento,
+        especialista,
+        reseña_padecimiento: reseñaPadecimiento,
+        celular,
+        numero_emergencia: numeroEmergencia,
+        usuario_id: usuarioResponse.data.id
+      };
+
+      await axios.post('http://localhost:5000/api/pacientes', pacienteData);
+
+      setSuccess(true);
+      // Limpiar el formulario después del éxito
+      resetForm();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al registrar el paciente');
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const resetForm = () => {
+    setNombre('');
+    setApellido('');
+    setCedula('');
+    setFechaNacimiento('');
+    setNacionalidad('');
+    setPaisNacimiento('');
+    setPeso('');
+    setAltura('');
+    setFechaUltimaVisita('');
+    setDiagnostico('');
+    setMedicoCabecera('');
+    setTienePadecimiento('');
+    setEspecialista('');
+    setReseñaPadecimiento('');
+    setCorreo('');
+    setCelular('');
+    setNumeroEmergencia('');
+    setPassword('');
+    setConfirmPassword('');
+  };
+
+  // ... (el resto del código del formulario se mantiene igual)
+
+  // Agregar campos de contraseña en la sección de Información de Contacto
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Registro de Paciente</h2>
       
+      {error && <div className="alert alert-danger">{error}</div>}
+      {success && <div className="alert alert-success">Paciente registrado exitosamente!</div>}
+
       <Form onSubmit={handleSubmit}>
-        {/* Sección 1: Datos Generales */}
+        {/* ... (las secciones anteriores se mantienen igual) ... */}
         <Card className="mb-4 shadow-sm">
           <Card.Header className="bg-primary text-white">
             <h5>Datos Generales</h5>
@@ -338,6 +400,31 @@ const RegistroPaciente = () => {
                   </Form.Text>
                 </Form.Group>
               </Col>
+              <Col md={6}>
+                <Form.Group controlId="formPassword">
+                  <Form.Label>Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="formConfirmPassword">
+                  <Form.Label>Confirmar Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </Form.Group>
+              </Col>
               <Col md={6} className="d-flex align-items-end">
                 <Button 
                   variant="outline-primary" 
@@ -351,10 +438,11 @@ const RegistroPaciente = () => {
             </Row>
           </Card.Body>
         </Card>
+
         {/* Botón de Enviar */}
         <div className="d-grid gap-2">
-          <Button variant="primary" type="submit" size="lg">
-            Registrar Paciente
+          <Button variant="primary" type="submit" size="lg" disabled={loading}>
+            {loading ? 'Registrando...' : 'Registrar Paciente'}
           </Button>
         </div>
       </Form>

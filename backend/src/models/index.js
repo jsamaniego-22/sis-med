@@ -1,7 +1,8 @@
+// models/index.js (versión corregida)
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
-import sequelize from '../db.js'; // Asegúrate de que db.js también use ESM
+import { sequelize } from '../db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,7 +15,7 @@ const modelFiles = fs.readdirSync(__dirname)
 
 for (const file of modelFiles) {
   const module = await import(`./${file}`);
-  const model = module.default(sequelize); // Asume que cada modelo exporta por defecto
+  const model = module.default(sequelize); // Asegúrate de que cada modelo exporte una función
   models[model.name] = model;
 }
 
@@ -25,5 +26,5 @@ Object.keys(models).forEach(modelName => {
   }
 });
 
-export const exportedModels = { sequelize, ...models }; // Exportación nombrada
-export default exportedModels;
+// Exporta los modelos y sequelize
+export { sequelize, models };
